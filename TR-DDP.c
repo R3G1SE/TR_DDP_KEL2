@@ -1,4 +1,8 @@
-Include <stdio.h> 
+#include <stdio.h>
+#include <stdlib.h> // Untuk system("cls") / system("clear")
+#include <string.h> // Untuk strcmp() (membandingkan string)
+#include <time.h>   // Untuk tanggal & waktu
+#include <windows.h> // Untuk Sleep() dan karakter loading (khusus Windows)
 
 Isi disini bagian 1 
   // --- KONSTANTA ---
@@ -41,4 +45,5 @@ void lihatDaftarBuku(); // Diperlukan oleh PinjamBuku
 Isi disini bagian 2
 Isi disini bagian 3 
 Isi disini bagian 4
+
 
