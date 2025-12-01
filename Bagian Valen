@@ -3,9 +3,23 @@ void pinjamBuku() {
     int idBukuDitemukan = -1;
     char tglPinjamStr[20], tglKembaliStr[20];
 
-    lihatDaftarBuku(); 
-    
-    printf("\n[INPUT] Masukkan Kode Buku: ");
+    bersihLayar();
+    printf("=== PINJAM BUKU ===\n");
+    printf("=========================================================================\n");
+    printf("| No.| Kode | Judul Buku\t    | Penulis\t\t    | Status    |\n");
+    printf("|====|======|=======================|=======================|===========|\n");
+    for (int i = 0; i < jumlahBuku; i++) {
+        printf("| %-2d | %-4s | %-21s | %-21s | %-9s |\n",
+                (i + 1),
+                daftarBuku[i].kode,
+                daftarBuku[i].judul,
+                daftarBuku[i].penulis,
+                (daftarBuku[i].status == 0) ? "Tersedia" : "Dipinjam");
+    }
+    printf("=========================================================================\n");
+
+
+    printf("\nMasukkan Kode Buku yang ingin dipinjam: ");
     scanf("%s", kodeBuku);
 
     for (int i = 0; i < jumlahBuku; i++) {
@@ -16,44 +30,52 @@ void pinjamBuku() {
     }
 
     if (idBukuDitemukan == -1) {
-        printf("\n[ERROR] Buku dengan kode '%s' tidak ditemukan.\n", kodeBuku);
+        printf("\nError: Buku dengan kode '%s' tidak ditemukan.\n", kodeBuku);
     } else if (daftarBuku[idBukuDitemukan].status == 1) {
-        printf("\n[ERROR] Buku '%s' sedang dipinjam.\n", daftarBuku[idBukuDitemukan].judul);
+        printf("\nError: Buku '%s' sedang dipinjam.\n", daftarBuku[idBukuDitemukan].judul);
     } else {
-        daftarBuku[idBukuDitemukan].status = 1; 
+        daftarBuku[idBukuDitemukan].status = 1;
 
-        int idx = jumlahPinjam;
-        daftarPinjam[idx].idBuku = daftarBuku[idBukuDitemukan].id;
-        strcpy(daftarPinjam[idx].usernamePeminjam, currentUser);
-        daftarPinjam[idx].waktuPinjam = time(NULL);
-        daftarPinjam[idx].waktuKembali = daftarPinjam[idx].waktuPinjam + (BATAS_PINJAM_HARI * 24 * 60 * 60);
-        daftarPinjam[idx].statusPinjam = 0;
+        int i = jumlahPinjam;
+        daftarPinjam[i].idBuku = daftarBuku[idBukuDitemukan].id;
+        strcpy(daftarPinjam[i].usernamePeminjam, currentUser);
+        daftarPinjam[i].waktuPinjam = time(NULL);
+        daftarPinjam[i].waktuKembali = daftarPinjam[i].waktuPinjam + (BATAS_PINJAM_HARI * 24 * 60 * 60);
+        daftarPinjam[i].statusPinjam = 0;
 
         jumlahPinjam++;
 
-        formatTanggal(daftarPinjam[idx].waktuPinjam, tglPinjamStr);
-        formatTanggal(daftarPinjam[idx].waktuKembali, tglKembaliStr);
+        formatTanggal(daftarPinjam[i].waktuPinjam, tglPinjamStr);
+        formatTanggal(daftarPinjam[i].waktuKembali, tglKembaliStr);
 
-        bersihLayar();
-        printf("    BUKTI PEMINJAMAN\n");
-        printf("--------------------------\n");
-        printf("Judul  : %s\n", daftarBuku[idBukuDitemukan].judul);
-        printf("Tgl    : %s\n", tglPinjamStr);
-        printf("Tempo  : %s\n", tglKembaliStr);
-        printf("--------------------------\n");
-        printf("Status : BERHASIL\n");
+        bersihLayar(); 
+        printf("===========================================\n");
+        printf("            RESI PEMINJAMAN BUKU\n");
+        printf("===========================================\n");
+        printf("  Peminjam   : %s\n", currentUser);
+        printf("  Kode Buku  : %s\n", daftarBuku[idBukuDitemukan].kode);
+        printf("  Judul Buku : %s\n", daftarBuku[idBukuDitemukan].judul);
+        printf("  ---------------------------------------\n");
+        printf("  Tgl Pinjam : %s\n", tglPinjamStr);
+        printf("  Batas Tgl  : %s\n", tglKembaliStr);
+        printf("  ---------------------------------------\n");
+        printf("\n  Harap kembalikan buku tepat waktu.\n");
+        printf("  Terima kasih!\n");
+        printf("===========================================\n");
     }
+
     tungguEnter();
 }
 
 void kembalikanBuku() {
     char kodeBuku[10];
     int idBukuDiDaftar = -1;
-    int idPinjam = -1;
+    int idPinjamDitemukan = -1;
 
     bersihLayar();
-    printf("=== PENGEMBALIAN BUKU ===\n");
-    printf("Kode Buku: "); scanf("%s", kodeBuku);
+    printf("=== KEMBALIKAN BUKU ===\n");
+    printf("Masukkan Kode Buku yang ingin dikembalikan: ");
+    scanf("%s", kodeBuku);
 
     for (int i = 0; i < jumlahBuku; i++) {
         if (strcmp(daftarBuku[i].kode, kodeBuku) == 0) {
@@ -63,44 +85,60 @@ void kembalikanBuku() {
     }
 
     if (idBukuDiDaftar == -1) {
-        printf("\n[ERROR] Kode buku salah/tidak terdaftar.\n");
+        printf("\nError: Buku dengan kode '%s' tidak terdaftar.\n", kodeBuku);
         tungguEnter();
         return;
     }
 
     for (int i = 0; i < jumlahPinjam; i++) {
-        if (daftarPinjam[i].idBuku == daftarBuku[idBukuDiDaftar].id && 
+        if (daftarPinjam[i].idBuku == daftarBuku[idBukuDiDaftar].id &&
             daftarPinjam[i].statusPinjam == 0) {
-            idPinjam = i;
+            idPinjamDitemukan = i;
             break;
         }
     }
 
-    if (idPinjam == -1) {
-        printf("\n[INFO] Anda tidak sedang meminjam buku ini.\n");
+    if (idPinjamDitemukan == -1) {
+        printf("\nError: Anda tidak sedang meminjam buku ini.\n");
     } else {
-        daftarPinjam[idPinjam].statusPinjam = 1;
+
+        daftarPinjam[idPinjamDitemukan].statusPinjam = 1;
         daftarBuku[idBukuDiDaftar].status = 0;
 
-        double selisih = difftime(time(NULL), daftarPinjam[idPinjam].waktuKembali);
-        long denda = 0;
-        int hariTelat = 0;
+        time_t waktuSekarang = time(NULL);
+        double selisihDetik = difftime(waktuSekarang, daftarPinjam[idPinjamDitemukan].waktuKembali);
+        int hariTerlambat = 0;
+        long totalDenda = 0;
 
-        if (selisih > 0) {
-            hariTelat = (int)(selisih / (24 * 3600)) + 1;
-            denda = hariTelat * DENDA_PER_HARI;
+        if (selisihDetik > 0) {
+            hariTerlambat = (selisihDetik / (60 * 60 * 24)) + 1;
+            totalDenda = hariTerlambat * DENDA_PER_HARI;
         }
 
-        printf("\n--- RINGKASAN PENGEMBALIAN ---\n");
-        printf("Judul      : %s\n", daftarBuku[idBukuDiDaftar].judul);
-        if (denda > 0) {
-            printf("Terlambat  : %d Hari\n", hariTelat);
-            printf("Total Denda: Rp %ld\n", denda);
+        printf("\n--- BUKU BERHASIL DIKEMBALIKAN ---\n");
+        printf("Judul: %s\n", daftarBuku[idBukuDiDaftar].judul);
+        if (totalDenda > 0) {
+            printf("Keterlambatan: %d hari\n", hariTerlambat);
+            printf("Total Denda  : Rp %ld\n", totalDenda);
             printf("Silakan lakukan pembayaran denda di meja admin.\n");
         } else {
-            printf("Status     : Tepat Waktu. Tidak ada denda.\n");
+            printf("Pengembalian tepat waktu. Tidak ada denda.\n");
         }
     }
+    tungguEnter();
+}
+
+void lihatAturan() {
+    bersihLayar();
+    printf("========================================================\n");
+    printf("                  ATURAN & KETENTUAN\n");
+    printf("========================================================\n");
+    printf("1. Mahasiswa wajib memiliki akun untuk login.\n");
+    printf("2. Batas maksimal peminjaman buku adalah %d hari.\n", BATAS_PINJAM_HARI);
+    printf("3. Keterlambatan pengembalian akan dikenakan denda.\n");
+    printf("4. Denda per hari adalah: Rp %d.\n", DENDA_PER_HARI);
+    printf("5. Jaga kondisi buku yang dipinjam.\n");
+    printf("6. Buku yang hilang wajib diganti dengan buku yang sama.\n");
     tungguEnter();
 }
 
@@ -115,12 +153,11 @@ int main() {
     do {
         tampilkanMenuUtama();
         scanf("%d", &pilihan);
-        while (getchar() != '\n'); 
+        while (getchar() != '\n');
 
         switch (pilihan) {
             case 1:
-                lihatDaftarBuku(); 
-                tungguEnter();
+                lihatDaftarBuku();
                 break;
             case 2:
                 pinjamBuku();
@@ -132,13 +169,15 @@ int main() {
                 lihatAturan();
                 break;
             case 5:
-                printf("\nLogout...\n");
-                Sleep(1000);
+                bersihLayar();
+                printf("Logout berhasil. Terima kasih telah menggunakan sistem ini!\n");
+                Sleep(2000);
                 break;
             default:
-                printf("\nPilihan tidak tersedia.\n");
-                Sleep(1000);
+                printf("\nPilihan tidak valid. Silakan masukkan angka 1-5.\n");
+                Sleep(1500);
         }
+
     } while (pilihan != 5);
 
     return 0;
