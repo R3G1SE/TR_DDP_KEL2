@@ -1,23 +1,20 @@
 #include <stdio.h>
-#include <stdlib.h> // Untuk system("cls") / system("clear")
-#include <string.h> // Untuk strcmp() (membandingkan string)
-#include <time.h>   // Untuk tanggal & waktu
-#include <windows.h> // Untuk Sleep() dan karakter loading (khusus Windows)
-
+#include <stdlib.h> 
+#include <string.h> 
+#include <time.h>   
+#include <windows.h> 
 //Isi disini bagian 1 
-  // --- KONSTANTA ---
 #define MAX_BUKU 10
 #define MAX_PINJAM 20
 #define BATAS_PINJAM_HARI 7
 #define DENDA_PER_HARI 1000
 
-// --- STRUKTUR DATA ---
 struct Buku {
     int id;
     char kode[10];
     char judul[100];
     char penulis[50];
-    int status; // 0 = Tersedia, 1 = Dipinjam
+    int status; 
 };
 
 struct Peminjaman {
@@ -25,22 +22,18 @@ struct Peminjaman {
     char usernamePeminjam[50];
     time_t waktuPinjam;
     time_t waktuKembali;
-    int statusPinjam; // 0 = Masih Dipinjam, 1 = Sudah Kembali
+    int statusPinjam; 
 };
 
-// --- DATABASE GLOBAL ---
-// Variabel ini diakses oleh semua anggota tim
 struct Buku daftarBuku[MAX_BUKU];
 struct Peminjaman daftarPinjam[MAX_PINJAM];
 int jumlahBuku = 0;
 int jumlahPinjam = 0;
 char currentUser[50];
-
-// --- PROTOTYPE FUNGSI (Agar urutan koding anggota lain tidak error) ---
 void bersihLayar();
 void tungguEnter();
 void formatTanggal(time_t waktu, char *buffer);
-void lihatDaftarBuku(); // Diperlukan oleh PinjamBuku
+void lihatDaftarBuku(); 
 
 //Isi disini bagian 2
 void bersihLayar() {
@@ -60,11 +53,10 @@ void tungguEnter() {
 void loading() {
     bersihLayar();
     printf("Memverifikasi data...\n\n");
-    // Simulasi loading bar sederhana
     printf("[");
     for (int i = 0; i < 20; i++) {
         printf("=");
-        Sleep(50); // Delay 50ms
+        Sleep(50); 
     }
     printf("]\n");
     printf("\nLogin Berhasil! Selamat datang.\n");
@@ -87,11 +79,10 @@ int login() {
         printf("Username : "); scanf("%s", username);
         printf("Password : "); scanf("%s", password);
 
-        // Hardcoded credential
         if (strcmp(username, "admin") == 0 && strcmp(password, "admin123") == 0) {
             strcpy(currentUser, username);
             loading();
-            return 1; // Login Sukses
+            return 1; 
         } else {
             printf("\n[!] Username atau password salah.\n");
             percobaan++;
@@ -99,13 +90,13 @@ int login() {
         }
     }
     printf("\n[!] Akses ditolak setelah 3x percobaan.\n");
-    return 0; // Login Gagal
+    return 0; 
 }
 
 
 //Isi disini bagian 3 
 void inisialisasiDataBuku() {
-    // Data Dummy untuk testing
+  
     daftarBuku[0] = (struct Buku){1, "C001", "Dasar Pemrograman C", "Budi Raharjo", 0};
     daftarBuku[1] = (struct Buku){2, "M002", "Matematika Diskrit", "Rinaldi Munir", 0};
     daftarBuku[2] = (struct Buku){3, "D003", "Sistem Basis Data", "Fathansyah", 0};
@@ -149,7 +140,6 @@ void lihatDaftarBuku() {
         }
     }
     printf("===============================================================================\n");
-    // Fungsi ini tidak memanggil tungguEnter() di sini agar bisa dipakai ulang oleh fungsi Pinjam
 }
 
 void lihatAturan() {
@@ -161,36 +151,30 @@ void lihatAturan() {
     tungguEnter();
 }
 
-//Isi disini bagian 4
+//BAGIAN 4
 void pinjamBuku() {
     char kodeBuku[10];
     int idBukuDitemukan = -1;
     char tglPinjamStr[20], tglKembaliStr[20];
 
-    // Menggunakan fungsi view dari Anggota C
     lihatDaftarBuku(); 
     
     printf("\n[INPUT] Masukkan Kode Buku: ");
     scanf("%s", kodeBuku);
 
-    // Logika pencarian (Cari buku berdasarkan kode)
     for (int i = 0; i < jumlahBuku; i++) {
         if (strcmp(daftarBuku[i].kode, kodeBuku) == 0) {
             idBukuDitemukan = i;
             break;
         }
     }
-
-    // Validasi Logika
     if (idBukuDitemukan == -1) {
         printf("\n[ERROR] Buku dengan kode '%s' tidak ditemukan.\n", kodeBuku);
     } else if (daftarBuku[idBukuDitemukan].status == 1) {
         printf("\n[ERROR] Buku '%s' sedang dipinjam.\n", daftarBuku[idBukuDitemukan].judul);
     } else {
-        // Proses peminjaman
-        daftarBuku[idBukuDitemukan].status = 1; // Ubah status buku
+        daftarBuku[idBukuDitemukan].status = 1; 
 
-        // Catat di riwayat peminjaman
         int idx = jumlahPinjam;
         daftarPinjam[idx].idBuku = daftarBuku[idBukuDitemukan].id;
         strcpy(daftarPinjam[idx].usernamePeminjam, currentUser);
@@ -200,12 +184,10 @@ void pinjamBuku() {
 
         jumlahPinjam++;
 
-        // Format tanggal untuk ditampilkan
         formatTanggal(daftarPinjam[idx].waktuPinjam, tglPinjamStr);
         formatTanggal(daftarPinjam[idx].waktuKembali, tglKembaliStr);
 
-        // Tampilkan Resi
-        bersihLayar(); // Bersihkan layar untuk menampilkan resi
+        bersihLayar(); 
         printf("    BUKTI PEMINJAMAN\n");
         printf("--------------------------\n");
         printf("Judul  : %s\n", daftarBuku[idBukuDitemukan].judul);
@@ -226,7 +208,6 @@ void kembalikanBuku() {
     printf("=== PENGEMBALIAN BUKU ===\n");
     printf("Kode Buku: "); scanf("%s", kodeBuku);
 
-    // 1. Cari ID buku di daftar buku
     for (int i = 0; i < jumlahBuku; i++) {
         if (strcmp(daftarBuku[i].kode, kodeBuku) == 0) {
             idBukuDiDaftar = i;
@@ -240,7 +221,6 @@ void kembalikanBuku() {
         return;
     }
 
-    // 2. Cari di riwayat peminjaman (yang masih berstatus dipinjam)
     for (int i = 0; i < jumlahPinjam; i++) {
         if (daftarPinjam[i].idBuku == daftarBuku[idBukuDiDaftar].id && 
             daftarPinjam[i].statusPinjam == 0) {
@@ -252,11 +232,10 @@ void kembalikanBuku() {
     if (idPinjam == -1) {
         printf("\n[INFO] Anda tidak sedang meminjam buku ini.\n");
     } else {
-        // Proses pengembalian
+     
         daftarPinjam[idPinjam].statusPinjam = 1;
         daftarBuku[idBukuDiDaftar].status = 0;
 
-        // Hitung Denda
         double selisih = difftime(time(NULL), daftarPinjam[idPinjam].waktuKembali);
         long denda = 0;
         int hariTelat = 0;
@@ -278,23 +257,16 @@ void kembalikanBuku() {
     }
     tungguEnter();
 }
-
-// MAIN PROGRAM (INTEGRATOR)
 int main() {
-    // 1. Init Data (Kerjaan Anggota C)
     inisialisasiDataBuku();
-
-    // 2. Login Process (Kerjaan Anggota B)
     if (login() == 0) {
         return 1;
     }
-
-    // 3. Main Loop (Kerjaan Anggota D)
     int pilihan;
     do {
-        tampilkanMenuUtama(); // Dari Anggota C
+        tampilkanMenuUtama();
         scanf("%d", &pilihan);
-        while (getchar() != '\n'); // Clear buffer
+        while (getchar() != '\n'); 
 
         switch (pilihan) {
             case 1:
@@ -322,6 +294,7 @@ int main() {
 
     return 0;
 }
+
 
 
 
