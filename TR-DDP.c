@@ -9,12 +9,13 @@
 #define BATAS_PINJAM_HARI 7
 #define DENDA_PER_HARI 1000
 
+//[[BAGIAN 1]]
 struct Buku {
     int id;
     char kode[10];
     char judul[100];
     char penulis[50];
-    int status; 
+    int status;
 };
 
 struct Peminjaman {
@@ -22,7 +23,7 @@ struct Peminjaman {
     char usernamePeminjam[50];
     time_t waktuPinjam;
     time_t waktuKembali;
-    int statusPinjam; 
+    int statusPinjam;
 };
 
 struct Buku daftarBuku[MAX_BUKU];
@@ -88,6 +89,8 @@ int login() {
     return 0;
 }
 
+
+//BAGIAN 2
 void inisialisasiDataBuku() {
     daftarBuku[0].id = 1;
     strcpy(daftarBuku[0].kode, "C001");
@@ -155,6 +158,8 @@ void lihatDaftarBuku() {
     tungguEnter();
 }
 
+
+//BAGIAN 3
 void pinjamBuku() {
     char kodeBuku[10];
     int idBukuDitemukan = -1;
@@ -205,7 +210,7 @@ void pinjamBuku() {
         formatTanggal(daftarPinjam[i].waktuPinjam, tglPinjamStr);
         formatTanggal(daftarPinjam[i].waktuKembali, tglKembaliStr);
 
-        bersihLayar(); 
+        bersihLayar();
         printf("===========================================\n");
         printf("            RESI PEMINJAMAN BUKU\n");
         printf("===========================================\n");
@@ -224,6 +229,7 @@ void pinjamBuku() {
     tungguEnter();
 }
 
+//BAGIAN 4
 void kembalikanBuku() {
     char kodeBuku[10];
     int idBukuDiDaftar = -1;
